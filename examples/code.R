@@ -1,8 +1,7 @@
-#load("../data/titanicData.RDA")
-source("functions.R")
-source("classes.R")
-source("families.R")
-source("buildModel.R")
+source("./R/functions.R")
+source("./R/classes.R")
+source("./R/families.R")
+source("./R/buildModel.R")
 
 set.seed(1984)
 #development_set <- sample(seq(1, ncol(X)), 250)

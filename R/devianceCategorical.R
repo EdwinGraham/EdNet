@@ -39,7 +39,7 @@ devianceCategorical <- function(Y, Y_hat){
   eps <- 1E-16
   Y_hat <- pmin(pmax(Y_hat, eps), 1-eps)
   
-  devs <- -2*Matrix::rowSums(Y*log(Y_hat))
+  devs <- -2*Matrix::colSums(Y*log(Y_hat))
 
   return(devs)
 }

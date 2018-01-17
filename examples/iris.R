@@ -1,11 +1,5 @@
 library(EdNet)
 
-funcs <- list.files("./R")
-for(f in funcs){
-  source(paste0("./R/", f))
-}
-
-
 data("iris")
 
 plot(iris$Sepal.Length, iris$Sepal.Width, col=iris$Species, pch=16)
@@ -30,6 +24,11 @@ modelFit <- EdNetTrain(X,
 
 
 ### For Debugging
+funcs <- list.files("./R")
+for(f in funcs){
+  source(paste0("./R/", f))
+}
+
 family <- "multiclass"
 learning_rate <- 0.05
 num_epochs <- 10

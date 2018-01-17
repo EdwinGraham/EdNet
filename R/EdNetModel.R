@@ -1,4 +1,4 @@
-# Class EMBlemFactor for levels and baseLevel of an Emblem factor
+# Class EdNetModel
 setClass(
   "EdNetModel",
   representation(

@@ -1,7 +1,7 @@
-#####  buildModel  #####
+#####  EdNetTrain  #####
 #' Train a neural network model
 #' @description Train a neural network model
-#' @usage buildModel(
+#' @usage EdNetTrain(
 #'   X,
 #'   Y,
 #'   family=NULL,
@@ -11,49 +11,60 @@
 #'   hidden_layer_activations=NULL,
 #'   optimiser="GradientDescent",
 #'   keep_prob=NULL,
-#'   input_keep_prob=NULL
+#'   input_keep_prob=NULL,
 #'   alpha=0,
 #'   lambda=0,
 #'   mini_batch_size=NULL,
-#'   folds=NULL,
-#'   beta1=ifelse(optimiser %in% c("Momentum", "Adam"), 0.9, NULL),
-#'   beta2=ifelse(optimiser %in% c("RMSProp", "Adam"), 0.999, NULL),
-#'   epsilon=ifelse(optimiser %in% c("RMSProp", "Adam"), 1E-8, NULL),
-#'   print_every=100L,
+#'   beta1=ifelse(optimiser \%in\% c("Momentum", "Adam"), 0.9, NULL),
+#'   beta2=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 0.999, NULL),
+#'   epsilon=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 1E-8, NULL),
+#'   print_every_n=100L,
 #'   seed=1984L,
 #'   plot=TRUE,
 #'   checkpoint=NULL,
 #'   keep=FALSE
 #' )
-#' @param X A matrix with rows as input features and columns as training examples
-#' @param Y A matrix with rows as target values and columns as training examples.
-#' @param family Type of regression to be performed. One of "binary", "multiclass", "gaussian", "poisson", "gamma", "tweedie". Will be ignored if starting from a checkpoint model. Alternatively you can specify a named list with the following elements: "family" - a character of length 1 for reference only; "link.inv" - a function (the inverse link function for activating the output layer); "costfun" - a function with parameters 'Y'and 'Yhat' representing the cost function to be minimised; "gradfun" - a function with parameters 'Y'and 'Yhat' representing the gradient of the cost function with respect to the linear, pre-activation, matrix in the output layer.
+#' @param X A matrix with rows as training examples and columns as input features
+#' @param Y A matrix with rows as training examples and columns as target values
+#' @param family Type of regression to be performed. One of "binary", "multiclass", "gaussian", "poisson", "gamma", "tweedie".
+#' Will be ignored if starting from a checkpoint model. Alternatively you can specify a named list with the following elements:
+#' "family" - a character of length 1 for reference only (must use "multiclass" if target values have dimension > 1);
+#' "link.inv" - a function (the inverse link function for activating the output layer);
+#' "costfun" - a function with parameters 'Y'and 'Y_hat' representing the cost function to be minimised;
+#' "gradfun" - a function with parameters 'Y'and 'Y_hat' representing the gradient of the cost function with respect to the linear, pre-activation, matrix in the output layer.
 #' @param learning_rate Learning rate to use.
-#' @param num_epochs Number of epochs (complete pass through training data) to be performed. If using mini-batches the number of iterations may be much higher.
-#' @param hidden_layer_dims Integer vector representing the dimensions of the hidden layers. Should not be specified if starting from a checkpoint model.
-#' @param hidden_layer_activations Character vector the same length as the \code{hidden_layer_dims} vector or length 1. If length is 1 the same activation function will be used for all hidden layers. Should only contain "relu" or "tanh" as these are the only supported activation functions for hidden layers. Should not be specified if starting from a checkpoint model.
+#' @param num_epochs Number of epochs (complete pass through training data) to be performed.
+#' If using mini-batches the number of iterations may be much higher.
+#' @param hidden_layer_dims Integer vector representing the dimensions of the hidden layers.
+#' Should not be specified if starting from a checkpoint model.
+#' @param hidden_layer_activations Character vector the same length as the \code{hidden_layer_dims} vector or length 1.
+#' If length is 1 the same activation function will be used for all hidden layers.
+#' Should only contain "relu" or "tanh" as these are the only supported activation functions for hidden layers.
+#' Should not be specified if starting from a checkpoint model.
 #' @param optimiser Type of optimiser to use. One of "GradientDescent", "Momentum", "RMSProp", "Adam".
-#' @param keep_prob Keep probabilities for applying drop-out in hidden layers. Either a constant or a vector the same length as the \code{hidden_layer_dims} vector. If NULL no drop-out is applied.
-#' @param input_keep_prob Keep probabilities for applying drop-out in the input layer. Needs to be a single constant. If NULL no drop-out is applied.
+#' @param keep_prob Keep probabilities for applying drop-out in hidden layers.
+#' Either a constant or a vector the same length as the \code{hidden_layer_dims} vector. If NULL no drop-out is applied.
+#' @param input_keep_prob Keep probabilities for applying drop-out in the input layer.
+#' Needs to be a single constant. If NULL no drop-out is applied.
 #' @param alpha L1 regularisation term.
 #' @param lambda L2 regularisation term.
 #' @param mini_batch_size Size of mini-batches to use. If NULL full training set is used for each iteration.
-#' @param dev_set Integer vector representing hold-out data. Integers refer to columns (individual training examples.)
+#' @param dev_set Integer vector representing hold-out data. Integers refer to individual training examples in the order presented in X.
 #' @param beta1 Exponential weighting term for gradients when using Momentum or Adam optimisation.
 #' @param beta2 Exponential weighting term for square pf gradients when using RMSProp or Adam optimisation.
-#' @param epsilon Small number used for numberical stability to prevent division by zero when using RMSProp or Adam optimisation.
-#' @param print_every Print info to the log every x epochs. If NULL, no printing is done.
+#' @param epsilon Small number used for numerical stability to prevent division by zero when using RMSProp or Adam optimisation.
+#' @param print_every_n Print info to the log every n epochs. If NULL, no printing is done.
 #' @param seed Random seed to use for repeatability.
 #' @param plot Plot cost function when printing to log.
 #' @param checkpoint Rather than initialise new parameters, start from a checkpoint model.
 #' @param keep keep X and Y data in final output.
-#' @return A model.
-#' @author Edwin Graham (edwin.graham@uk.rsagroup.com)
+#' @return An object of class EdNetModel.
+#' @author Edwin Graham <edwingraham1984@gmail.com>
 #' @examples
 #' # No example yet
 #' @export
 
-buildModel <- function(X,
+EdNetTrain <- function(X,
                        Y,
                        family=NULL,
                        learning_rate=0.05,
@@ -70,7 +81,7 @@ buildModel <- function(X,
                        beta1,
                        beta2,
                        epsilon,
-                       print_every=100L,
+                       print_every_n=100L,
                        seed=1984L,
                        plot=TRUE,
                        checkpoint=NULL,
@@ -81,6 +92,11 @@ buildModel <- function(X,
   ## Check X and Y are of the correct format
   if(!is.matrix(X)) stop("X must be a matrix.")
   if(!is.matrix(Y)) stop("Y must be a matrix.")
+  
+  ## Function takes data formatted with columns as features and rows as observations
+  ## Code throughout the function uses the opposite approach
+  X <- t(X)
+  Y <- t(Y)
   
   ## Number of training examples
   m <- dim(X)[2]
@@ -117,7 +133,6 @@ buildModel <- function(X,
     #tryCatch(family <- checkpoint@model$family, error=stop("Error retrieving family from checkpoint model"))
   }
 
-  
   ## Check Y has correct dimensions
   if(family$family != "multiclass"){
     if(dim(Y)[1] != 1) stop("Y should be a single row matrix for this type of regression")
@@ -212,17 +227,6 @@ buildModel <- function(X,
     }
   }
   
-  
-  ## Check folds
-  # if(!is.null(folds)){
-  #   if(!is.list(folds)) stop("folds should be a list, each element specifying row numbers.")
-  #   if(!all(sapply(folds, is.numeric))) stop("Each element of folds list should be numeric")
-  #   if(!all(sapply(folds, function(x) length(x)>0))) stop("Zero length folds detected")
-  #   if(!all(sapply(folds, function(x) x==as.integer(x)))) stop("Non-integer values detected in folds list.")
-  #   if(min(sapply(folds, min)) < 1) stop("Zero or negative numbers detected in folds list.")
-  #   if(max(sapply(folds, max)) > m) stop("Folds list contains numbers greater than the number of training examples.")
-  # }
-  
   ## Setup beta1, beta2 and epsilon if required
   if(missing(beta1)) if(optimiser %in% c("Momentum", "Adam")) beta1 <- 0.9 else beta1 <- NULL
   if(missing(beta2)) if(optimiser %in% c("RMSProp", "Adam")) beta2 <- 0.999 else beta2 <- NULL
@@ -268,10 +272,10 @@ buildModel <- function(X,
   }
   
   ## Check other parameters
-  if(!is.null(print_every)){
-    if(!is.numeric(print_every)) stop("print_every should be numeric")
-    if(length(print_every) != 1) stop("print_every should be length 1.")
-    print_every <- as.integer(print_every)
+  if(!is.null(print_every_n)){
+    if(!is.numeric(print_every_n)) stop("print_every_n should be numeric")
+    if(length(print_every_n) != 1) stop("print_every_n should be length 1.")
+    print_every_n <- as.integer(print_every_n)
   }
   if(!is.logical(plot)) stop("plot should be logical")
   if(length(plot) != 1) stop("plot should be length 1.")
@@ -317,16 +321,8 @@ buildModel <- function(X,
     if(!is.null(hidden_layer_dims)) warning("hidden_layer_dims is specified but will be ignored since starting learning from checkpoint model")
     if(!is.null(hidden_layer_activations)) warning("hidden_layer_activations is specified but will be ignored since starting learning from checkpoint model")
     if(!is.null(family)) {
-      print(family)
-      print(model$family)
       if(!identical(family$family, model$family$family)) stop("Mis-match between family specified and family from checkpoint model.")
     }
-  }
-  
-  ## Extract development set
-  if(keep){
-    X_ <- X
-    Y_ <- Y
   }
   
   ## Extract development set
@@ -338,20 +334,17 @@ buildModel <- function(X,
     m <- m-length(dev_set)
   }
   
-  ## Randomise order
+  ## Set a seed
   set.seed(seed)
-  permutate <- sample(seq(1, m))
-  X <- X[, permutate, drop=FALSE]
-  Y <- Y[, permutate, drop=FALSE]
   
   ## Split into mini-batches
   mini_batches <- lapply(seq(0, ceiling(m / mini_batch_size)-1), function(i){
-    list(X=X[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE],
-         Y=Y[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE])
+    permutate <- sample(seq(1, m))
+    X <- X[, permutate, drop=FALSE]
+    Y <- Y[, permutate, drop=FALSE]
+    return(list(X=X[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE],
+                Y=Y[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE]))
   })
-  
-  rm(list=c("X", "Y"))
-  gc()
   
   num_batches <- length(mini_batches)
 
@@ -412,8 +405,8 @@ buildModel <- function(X,
     }
     
     ## Print output
-    if(!is.null(print_every)){
-      if(!e%%print_every | e==num_epochs){
+    if(!is.null(print_every_n)){
+      if(!e%%print_every_n | e==num_epochs){
         
         if(!is.null(dev_set)){
           print(paste0("Cost after ", prettyNum(e, big.mark=","), " epochs: train-", prettyNum(J), ", dev-", prettyNum(dev_loss)))
@@ -434,6 +427,15 @@ buildModel <- function(X,
         }
       }
     }
+    
+    ## redfine mini-batches for next epoch
+    mini_batches <- lapply(seq(0, ceiling(m / mini_batch_size)-1), function(i){
+      permutate <- sample(seq(1, m))
+      X <- X[, permutate, drop=FALSE]
+      Y <- Y[, permutate, drop=FALSE]
+      return(list(X=X[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE],
+                  Y=Y[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE]))
+    })
   }
   
   # Drop Cache
@@ -441,27 +443,11 @@ buildModel <- function(X,
   
   # Put output together
   if(keep){
-    final <- EdNetModel(model=model, Costs=Costs, data=list(X=X_, Y=Y_))
+    final <- EdNetModel(model=model, Costs=Costs, data=list(X=X, Y=Y))
   } else{
     final <- EdNetModel(model=model, Costs=Costs, data=list())
   }
   
   # Return final model
   return(final)
-}
-
-
-predict.EdNetModel <- function(object, newdata=NULL){
-  ## Check data
-  if(is.null(newdata)){
-    if(is.null(object@data$X)) stop("No data to predict on.")
-    newdata <- object@data$X
-  }
-  
-  ## Run forward prop
-  L <- length(object@model$Params)
-  cache <- forwardPropagation(newdata, object@model$Params, 1, rep(1, L))
-
-  ## Return activations for final layer
-  return(cache[[paste0("l", L)]]$A)
 }

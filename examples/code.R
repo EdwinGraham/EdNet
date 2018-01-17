@@ -103,7 +103,6 @@ keep <- FALSE
 # Support for Tweedie
 # Learning-rate decay
 # Early-stopping
-# Batch normalisation
 # Weights
 # Offsets
 # Multi-task learning

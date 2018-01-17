@@ -1,9 +1,9 @@
 #####  devianceGamma  #####
 #' Function to calculate deviance for model predictions assuming a Gamma distribution.
 #' @description This function calculates a deviance measure for model predictions assuming a Gamma distribution.
-#' @usage devianceGamma(y, y_hat)
-#' @param y a numeric vector of observations.
-#' @param y_hat a numeric vector of predictions for y (must have same length as y.)
+#' @usage devianceGamma(Y, Y_hat)
+#' @param Y a numeric vector of observations.
+#' @param Y_hat a numeric vector of predictions for Y (must have same length as Y.)
 #' @return a numeric vector.
 #' @author Edwin Graham <edwingraham1984@gmail.com>
 #' @examples
@@ -19,16 +19,16 @@
 #' # sum(devs)
 #' @export
 
-devianceGamma <- function(y, y_hat){
-  n <- length(y)
-  if(length(y_hat) != n) stop("y and y_hat are not the same length")
+devianceGamma <- function(Y, Y_hat){
+  n <- length(Y)
+  if(length(Y_hat) != n) stop("Y and Y_hat are not the same length")
 
   # Fix for very small values
   eps <- 1E-16
-  y <- pmax(y, eps)
-  y_hat <- pmax(y_hat, eps)
+  Y <- pmax(Y, eps)
+  Y_hat <- pmax(Y_hat, eps)
  
-  devs <- -2*(log(y/y_hat) - (y-y_hat)/y_hat)
+  devs <- -2*(log(Y/Y_hat) - (Y-Y_hat)/Y_hat)
 
   return(devs)
 }

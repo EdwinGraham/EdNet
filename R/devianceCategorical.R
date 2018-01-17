@@ -1,9 +1,9 @@
 #####  devianceCategorical  #####
 #' Function to calculate deviance for model predictions assuming a Categorical distribution.
 #' @description This function calculates a deviance measure for model predictions assuming a Categorical distribution.
-#' @usage devianceCategorical(y, y_hat)
-#' @param y a numeric matrix of observations (0s and 1s) where columns indicate categories and rows indicate observations. Should be exactly one 1 per row.
-#' @param y_hat a numeric matrix of predictions (between 0 and 1) for y (must have same dimensions as y.) Row sums should all equal 1.
+#' @usage devianceCategorical(Y, Y_hat)
+#' @param Y a numeric matrix of observations (0s and 1s) where columns indicate categories and rows indicate observations. Should be exactly one 1 per row.
+#' @param Y_hat a numeric matrix of predictions (between 0 and 1) for Y (must have same dimensions as Y.) Row sums should all equal 1.
 #' @return a numeric vector.
 #' @author Edwin Graham <edwingraham1984@gmail.com>
 #' @examples
@@ -29,17 +29,17 @@
 #' # sum(devs)
 #' @export
 
-devianceCategorical <- function(y, y_hat){
-  if(!is.matrix(y)) stop("y should be a matrix")
-  if(!is.matrix(y_hat)) stop("y_hat should be a matrix")
+devianceCategorical <- function(Y, Y_hat){
+  if(!is.matrix(Y)) stop("Y should be a matrix")
+  if(!is.matrix(Y_hat)) stop("Y_hat should be a matrix")
   
-  if(!identical(dim(y), dim(y_hat))) stop("y and y_hat must have the same dimensions")
+  if(!identical(dim(Y), dim(Y_hat))) stop("Y and Y_hat must have the same dimensions")
   
   # Fix for very small values
   eps <- 1E-16
-  y_hat <- pmin(pmax(y_hat, eps), 1-eps)
+  Y_hat <- pmin(pmax(Y_hat, eps), 1-eps)
   
-  devs <- -2*Matrix::rowSums(y*log(y_hat))
+  devs <- -2*Matrix::rowSums(Y*log(Y_hat))
 
   return(devs)
 }

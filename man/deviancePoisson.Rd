@@ -4,12 +4,12 @@
 \alias{deviancePoisson}
 \title{Function to calculate deviance for model predictions assuming a Poisson distribution.}
 \usage{
-deviancePoisson(y, y_hat)
+deviancePoisson(Y, Y_hat)
 }
 \arguments{
-\item{y}{a numeric vector of observations.}
+\item{Y}{a numeric vector of observations.}
 
-\item{y_hat}{a numeric vector of predictions for y (must have same length as y.)}
+\item{Y_hat}{a numeric vector of predictions for Y (must have same length as Y.)}
 }
 \value{
 a numeric vector.

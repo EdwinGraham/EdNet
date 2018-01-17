@@ -14,11 +14,11 @@ EdNetTrain(
   hidden_layer_activations=NULL,
   optimiser="GradientDescent",
   keep_prob=NULL,
-  input_keep_prob=NULL
+  input_keep_prob=NULL,
   alpha=0,
   lambda=0,
   mini_batch_size=NULL,
-  folds=NULL,
+  dev_set=NULL,
   beta1=ifelse(optimiser \%in\% c("Momentum", "Adam"), 0.9, NULL),
   beta2=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 0.999, NULL),
   epsilon=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 1E-8, NULL),
@@ -38,8 +38,8 @@ EdNetTrain(
 Will be ignored if starting from a checkpoint model. Alternatively you can specify a named list with the following elements:
 "family" - a character of length 1 for reference only (must use "multiclass" if target values have dimension > 1);
 "link.inv" - a function (the inverse link function for activating the output layer);
-"costfun" - a function with parameters 'Y'and 'Yhat' representing the cost function to be minimised;
-"gradfun" - a function with parameters 'Y'and 'Yhat' representing the gradient of the cost function with respect to the linear, pre-activation, matrix in the output layer.}
+"costfun" - a function with parameters 'Y'and 'Y_hat' representing the cost function to be minimised;
+"gradfun" - a function with parameters 'Y'and 'Y_hat' representing the gradient of the cost function with respect to the linear, pre-activation, matrix in the output layer.}
 
 \item{learning_rate}{Learning rate to use.}
 

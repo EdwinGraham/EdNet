@@ -41,6 +41,7 @@ input_keep_prob <- NULL
 alpha <- 0
 lambda <- 0
 mini_batch_size <- NULL
+dev_set <- NULL
 beta1 <- 0.9
 beta2 <- 0.999
 epsilon <- 1E-8

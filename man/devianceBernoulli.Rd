@@ -4,12 +4,12 @@
 \alias{devianceBernoulli}
 \title{Function to calculate deviance for model predictions assuming a Bernoulli distribution.}
 \usage{
-devianceBernoulli(y, y_hat)
+devianceBernoulli(Y, Y_hat)
 }
 \arguments{
-\item{y}{a numeric vector of observations (0s and 1s.)}
+\item{Y}{a numeric vector of observations (0s and 1s.)}
 
-\item{y_hat}{a numeric vector of predictions (between 0 and 1) for y (must have same length as y.)}
+\item{Y_hat}{a numeric vector of predictions (between 0 and 1) for Y (must have same length as Y.)}
 }
 \value{
 a numeric vector.

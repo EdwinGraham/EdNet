@@ -1,9 +1,9 @@
 #####  devianceBernoulli  #####
 #' Function to calculate deviance for model predictions assuming a Bernoulli distribution.
 #' @description This function calculates a deviance measure for model predictions assuming a Bernoulli distribution.
-#' @usage devianceBernoulli(y, y_hat)
-#' @param y a numeric vector of observations (0s and 1s.)
-#' @param y_hat a numeric vector of predictions (between 0 and 1) for y (must have same length as y.)
+#' @usage devianceBernoulli(Y, Y_hat)
+#' @param Y a numeric vector of observations (0s and 1s.)
+#' @param Y_hat a numeric vector of predictions (between 0 and 1) for Y (must have same length as Y.)
 #' @return a numeric vector.
 #' @author Edwin Graham <edwingraham1984@gmail.com>
 #' @examples
@@ -19,15 +19,15 @@
 #' # sum(devs)
 #' @export
 
-devianceBernoulli <- function(y, y_hat){
-  n <- length(y)
-  if(length(y_hat) != n) stop("y and y_hat are not the same length")
+devianceBernoulli <- function(Y, Y_hat){
+  n <- length(Y)
+  if(length(Y_hat) != n) stop("Y and Y_hat are not the same length")
   
   # Fix for very small values
   eps <- 1E-16
-  y_hat <- pmin(pmax(y_hat, eps), 1-eps)
+  Y_hat <- pmin(pmax(Y_hat, eps), 1-eps)
   
-  devs <- -2*(y*log(y_hat) + (1-y)*log(1-y_hat))
+  devs <- -2*(Y*log(Y_hat) + (1-Y)*log(1-Y_hat))
 
   return(devs)
 }

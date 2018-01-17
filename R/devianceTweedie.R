@@ -45,4 +45,3 @@ devianceTweedie <- function(Y, Y_hat, p=1.5){
   
   return(devs)
 }
-

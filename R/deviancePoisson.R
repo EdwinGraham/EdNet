@@ -1,9 +1,9 @@
 #####  deviancePoisson  #####
 #' Function to calculate deviance for model predictions assuming a Poisson distribution.
 #' @description This function calculates a deviance measure for model predictions assuming a Poisson distribution.
-#' @usage deviancePoisson(y, y_hat)
-#' @param y a numeric vector of observations.
-#' @param y_hat a numeric vector of predictions for y (must have same length as y.)
+#' @usage deviancePoisson(Y, Y_hat)
+#' @param Y a numeric vector of observations.
+#' @param Y_hat a numeric vector of predictions for Y (must have same length as Y.)
 #' @return a numeric vector.
 #' @author Edwin Graham <edwingraham1984@gmail.com>
 #' @examples
@@ -19,28 +19,25 @@
 #' # sum(devs)
 #' @export
 
-deviancePoisson <- function(y, y_hat){
-  n <- length(y)
-  if(length(y_hat) != n) stop("y and y_hat are not the same length")
+deviancePoisson <- function(Y, Y_hat){
+  n <- length(Y)
+  if(length(Y_hat) != n) stop("Y and Y_hat are not the same length")
   
-  # Separate into y > 0 and y == 0
-  zeros <- which(y==0)
+  # Separate into Y > 0 and Y == 0
+  zeros <- which(Y==0)
   
   devs <- vector(mode="numeric", length=n)
-  devs[zeros] <- 2*y_hat[zeros]
+  devs[zeros] <- 2*Y_hat[zeros]
   
   # Fix for very small values
   eps <- 1E-16
-  y_hat <- pmax(y_hat, eps)
+  Y_hat <- pmax(Y_hat, eps)
   
   if(length(zeros) > 0 ){
-    devs[-zeros] <- 2*(y[-zeros]*log(y[-zeros]/y_hat[-zeros])-y[-zeros]+y_hat[-zeros])
+    devs[-zeros] <- 2*(Y[-zeros]*log(Y[-zeros]/Y_hat[-zeros])-Y[-zeros]+Y_hat[-zeros])
   } else{
-    devs <- 2*(y*log(y/y_hat)-y+y_hat)
+    devs <- 2*(Y*log(Y/Y_hat)-Y+Y_hat)
   }
 
   return(devs)
 }
-
-y <- 200
-y_hat <- 100

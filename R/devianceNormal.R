@@ -1,9 +1,9 @@
 #####  devianceNormal  #####
 #' Function to calculate deviance for model predictions assuming a Normal distribution.
 #' @description This function calculates a deviance measure for model predictions assuming a Normal distribution.
-#' @usage devianceNormal(y, y_hat)
-#' @param y a numeric vector of observations.
-#' @param y_hat a numeric vector of predictions for y (must have same length as y.)
+#' @usage devianceNormal(Y, Y_hat)
+#' @param Y a numeric vector of observations.
+#' @param Y_hat a numeric vector of predictions for Y (must have same length as Y.)
 #' @return a numeric vector.
 #' @author Edwin Graham <edwingraham1984@gmail.com>
 #' @examples
@@ -19,11 +19,11 @@
 #' # sum(devs)
 #' @export
 
-devianceNormal <- function(y, y_hat, w=NULL){
-  n <- length(y)
-  if(length(y_hat) != n) stop("y and y_hat are not the same length")
+devianceNormal <- function(Y, Y_hat, w=NULL){
+  n <- length(Y)
+  if(length(Y_hat) != n) stop("Y and Y_hat are not the same length")
 
-  devs <- (y-y_hat)^2
+  devs <- (Y-Y_hat)^2
   
   return(devs)
 }

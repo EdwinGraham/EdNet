@@ -15,6 +15,7 @@
 #'   alpha=0,
 #'   lambda=0,
 #'   mini_batch_size=NULL,
+#'   dev_set=NULL,
 #'   beta1=ifelse(optimiser \%in\% c("Momentum", "Adam"), 0.9, NULL),
 #'   beta2=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 0.999, NULL),
 #'   epsilon=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 1E-8, NULL),

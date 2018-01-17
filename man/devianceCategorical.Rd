@@ -4,12 +4,12 @@
 \alias{devianceCategorical}
 \title{Function to calculate deviance for model predictions assuming a Categorical distribution.}
 \usage{
-devianceCategorical(y, y_hat)
+devianceCategorical(Y, Y_hat)
 }
 \arguments{
-\item{y}{a numeric matrix of observations (0s and 1s) where columns indicate categories and rows indicate observations. Should be exactly one 1 per row.}
+\item{Y}{a numeric matrix of observations (0s and 1s) where columns indicate categories and rows indicate observations. Should be exactly one 1 per row.}
 
-\item{y_hat}{a numeric matrix of predictions (between 0 and 1) for y (must have same dimensions as y.) Row sums should all equal 1.}
+\item{Y_hat}{a numeric matrix of predictions (between 0 and 1) for Y (must have same dimensions as Y.) Row sums should all equal 1.}
 }
 \value{
 a numeric vector.

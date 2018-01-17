@@ -419,9 +419,9 @@ EdNetTrain <- function(X,
         }
         if(plot){
           if(!is.null(dev_set)){
-            plot(seq(0, e), Costs$trainCost, type="l", ylab="Cost/Loss Function", xlab="Epochs", ylim=range(c(Costs$trainCost, Costs$devLoss)))
+            plot(seq(0, e), Costs$trainCost, type="l", ylab="Cost Function", xlab="Epochs", ylim=range(c(Costs$trainCost, Costs$devLoss)))
             lines(Costs$devLoss, col="red")
-            legend("topright", legend=c("Cost (train)", "Loss (dev)"), col=c("black", "red"), lty=1)
+            legend("topright", legend=c("Cost (train)", "Cost (dev)"), col=c("black", "red"), lty=1)
           } else{
             plot(seq(0, e), Costs$trainCost, type="l", ylab="Cost Function", xlab="Epochs")
           }

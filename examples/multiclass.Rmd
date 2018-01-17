@@ -1,0 +1,91 @@
+---
+title: "Ednet multi-class example on Iris dataset"
+output:
+  html_notebook
+---
+
+Load the package, and bring the Iris data into the environment.
+
+```{r, fig.width = 9}
+library(EdNet)
+
+data("iris")
+head(iris)
+
+# Plot sepal length v sepal width and colour by species
+plot(iris$Sepal.Length, iris$Sepal.Width, col=iris$Species, pch=16,
+     xlab="Sepal Length", ylab="Sepal Width", main="Iris species by sepal length and width")
+legend("topright",
+       legend=c("setosa", "versicolor", "virginica"),
+       col=c("black", "red", "green"), pch=16)
+
+```
+
+Before fitting the model. For multi-class learning, `EdNetTrain` requires the input labels to be one-hot encoded. It's also good practice to normalise input features before training.
+
+```{r}
+X <- sapply(iris[, 1:4], normalise)
+head(X)
+
+Y <- onehotEncode(iris$Species)
+head(Y)
+```
+
+We will hold out 20 rows at random (there are 150 altogether.)
+
+```{r}
+set.seed(1984)
+holdoutRows <- sample(1:150, 20)
+```
+
+We're now ready to train a model. We will train a network with 3 fully-connected hidden layers with dimensions 128, 64 and 32. Each of these layers will use a `relu` activiation function and a drop-out percentage of 50%. We will train for 40 epochs with a mini-batch size of 16 using Adam optimisation.
+
+```{r}
+modelFit <- EdNetTrain(X, Y,
+                       family="multiclass",
+                       learning_rate=0.01,
+                       num_epochs=40,
+                       hidden_layer_dims=c(128, 64, 32),
+                       hidden_layer_activations="relu",
+                       optimiser="Adam",
+                       lambda = 0.001,
+                       keep_prob=0.5,
+                       mini_batch_size=16,
+                       print_every_n=40L,
+                       seed=1984,
+                       plot=TRUE,
+                       dev_set=holdoutRows)
+```
+
+The costs are calculated on the final mini-batch of an epoch (in this case only on 16 rows for the training data) which, along with the drop-out, explains the noisiness. It seems quite flat after a certain point and the goodness-of-fit on the dev set is not trending upwards so we can be reasonably happy with the number of epochs we trained for.
+
+We can generate the predicted class probabilities by using the `predict` function.
+
+
+```{r}
+classProbs <- predict(modelFit, X)
+head(classProbs)
+```
+
+Using the `predictedClass` function we can calculate the predicted class for each row (which is the class with the highest probability.)
+
+```{r}
+iris$predictions <- predictedClass(classProbs, levels(iris$Species))
+head(iris)
+```
+
+Plotting these predictions on the holdout only (it is easy to generate good predictions on the training data.)
+```{r, fig.width = 9}
+
+dev <- iris[holdoutRows, ]
+
+par(mfrow=c(1,2))
+plot(dev$Sepal.Length, dev$Sepal.Width, col=dev$Species, pch=16,
+     xlab="Sepal Length", ylab="Sepal Width", main="Actual")
+plot(dev$Sepal.Length, dev$Sepal.Width, col=dev$predictions, pch=16,
+     xlab="Sepal Length", ylab="Sepal Width", main="Predicted")
+legend("topright", inset=0.07,
+       legend=c("setosa", "versicolor", "virginica"),
+       col=c("black", "red", "green"), pch=16)
+```
+Predictions on the holdout data set have 100% accuracy!

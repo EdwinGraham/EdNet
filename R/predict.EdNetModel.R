@@ -2,8 +2,8 @@
 #' Predict for EdNetModel objects
 #' @description Predict for EdNetModel objects
 #' @usage predict.EdNetModel(object, newdata=NULL)
-#' @param object A matrix with rows as training examples and columns as input features
-#' @param newdata A matrix with rows as training examples and columns as target values
+#' @param object An object of class EdNetModel
+#' @param newdata A matrix with rows as training examples and columns as input features, with the same width as the data used to train object.
 #' @return A vector or matrix of predictions.
 #' @author Edwin Graham <edwingraham1984@gmail.com>
 #' @examples

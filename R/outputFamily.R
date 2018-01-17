@@ -1,12 +1,3 @@
-#####  outputFamily  #####
-#' Function to calculate deviance for model predictions assuming a Bernoulli distribution.
-#' @description This function calculates a deviance measure for model predictions assuming a Bernoulli distribution.
-#' @usage devianceBernoulli(y, y_hat)
-#' @param y a numeric vector of observations (0s and 1s.)
-#' @param y_hat a numeric vector of predictions (between 0 and 1) for y (must have same length as y.)
-#' @return a numeric vector.
-#' @author Edwin Graham <edwingraham1984@gmail.com>
-
 outputFamily <- function(family, power=NULL){
   if(family=="binary"){
     link.inv <- sigmoid

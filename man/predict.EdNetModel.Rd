@@ -7,9 +7,9 @@
 predict.EdNetModel(object, newdata=NULL)
 }
 \arguments{
-\item{object}{A matrix with rows as training examples and columns as input features}
+\item{object}{An object of class EdNetModel}
 
-\item{newdata}{A matrix with rows as training examples and columns as target values}
+\item{newdata}{A matrix with rows as training examples and columns as input features, with the same width as the data used to train object.}
 }
 \value{
 A vector or matrix of predictions.

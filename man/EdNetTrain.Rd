@@ -12,9 +12,12 @@ EdNetTrain(
   num_epochs,
   hidden_layer_dims=NULL,
   hidden_layer_activations=NULL,
+  weight=NULL,
+  offset=NULL,
   optimiser="GradientDescent",
   keep_prob=NULL,
   input_keep_prob=NULL,
+  tweediePower=ifelse(family=="tweedie", 1.5, NULL),
   alpha=0,
   lambda=0,
   mini_batch_size=NULL,
@@ -22,6 +25,7 @@ EdNetTrain(
   beta1=ifelse(optimiser \%in\% c("Momentum", "Adam"), 0.9, NULL),
   beta2=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 0.999, NULL),
   epsilon=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 1E-8, NULL),
+  initialisation_constant=2,
   print_every_n=100L,
   seed=1984L,
   plot=TRUE,
@@ -54,6 +58,11 @@ If length is 1 the same activation function will be used for all hidden layers.
 Should only contain "relu" or "tanh" as these are the only supported activation functions for hidden layers.
 Should not be specified if starting from a checkpoint model.}
 
+\item{weight}{An optional vector of weights the same length as the number of rows of X or Y.}
+
+\item{offset}{A matrix with the same dimensions of Y to be used as an offset model. 
+The offset needs to be in linear space as the offset is applied before the activation function.}
+
 \item{optimiser}{Type of optimiser to use. One of "GradientDescent", "Momentum", "RMSProp", "Adam".}
 
 \item{keep_prob}{Keep probabilities for applying drop-out in hidden layers.
@@ -61,6 +70,8 @@ Either a constant or a vector the same length as the \code{hidden_layer_dims} ve
 
 \item{input_keep_prob}{Keep probabilities for applying drop-out in the input layer.
 Needs to be a single constant. If NULL no drop-out is applied.}
+
+\item{tweediePower}{Tweedie power parameter. Only applicable in Tweedie regression. Should be a number between 1 and 2.}
 
 \item{alpha}{L1 regularisation term.}
 
@@ -75,6 +86,9 @@ Needs to be a single constant. If NULL no drop-out is applied.}
 \item{beta2}{Exponential weighting term for square pf gradients when using RMSProp or Adam optimisation.}
 
 \item{epsilon}{Small number used for numerical stability to prevent division by zero when using RMSProp or Adam optimisation.}
+
+\item{initialisation_constant}{Weights are initialised randomly to have variance of \code{k / n} where \code{k} is the \code{initialisation_constant} and \code{n} is the dimension of the previous layer.
+Recommended to use the default of 2 if using relu activations and change to 1 for tanh, although it can be tuned for any specific learning task.}
 
 \item{print_every_n}{Print info to the log every n epochs. If NULL, no printing is done.}
 

@@ -1,4 +1,4 @@
-forwardPropagation <- function(X, Params, input_keep_prob, keep_prob){
+forwardPropagation <- function(X, Params, input_keep_prob, keep_prob, offset=NULL){
   ## Number of layers
   L <- length(Params)
   
@@ -31,6 +31,8 @@ forwardPropagation <- function(X, Params, input_keep_prob, keep_prob){
     ## Linear part
     Z <- matrix(nrow = nrow, ncol = ncol)
     Z[] <- apply(Params[[paste0("l", i)]]$W %*% Cache[[paste0("l", i-1)]]$A, 2, function(col) col + Params[[paste0("l", i)]]$b)
+    ## Add offset model if final layer
+    if(i==L & !is.null(offset)) Z <- Z + offset
     ## Apply activation function (with dropout if needed)
     if(dropout[i]){
       Cache[[paste0("l", i)]]$A <- (do.call(Params[[paste0("l", i)]]$activation, list(Z)) * Cache[[paste0("l", i)]]$D) / keep_prob[i]

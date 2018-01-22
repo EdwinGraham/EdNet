@@ -1,10 +1,10 @@
-computeCost <- function(model, Y, lambda=0, alpha=0, family){
+computeCost <- function(model, Y, lambda=0, alpha=0, weight=NULL){
   ## Number of layers & Activations for final layer
   L <- length(model$Params)
   AL <- model$Cache[[paste0("l", L)]]$A
   
   ## Cost based on maximum likelihood
-  J <- model$family$costfun(Y=Y, Y_hat=AL)
+  J <- model$family$costfun(Y=Y, Y_hat=AL, weight)
   
   if(lambda>0){
     m <- dim(Y)[2]

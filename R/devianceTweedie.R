@@ -32,7 +32,7 @@ devianceTweedie <- function(Y, Y_hat, p=1.5){
   devs <- vector(mode="numeric", length=n)
   devs[zeros] <-  2*Y_hat[zeros]^(2-p)/(2-p)
   
-  # Fix for verY small values
+  # Fix for very small values
   eps <- 1E-16
   Y_hat <- pmax(Y_hat, eps)
   

@@ -1,4 +1,4 @@
-backwardPropagation <- function(Y, model, alpha, lambda, keep_prob){
+backwardPropagation <- function(Y, model, alpha, lambda, keep_prob, weight=NULL){
   ## Helpful parameters
   m <- dim(Y)[2]
   L <- length(model$Params)
@@ -14,7 +14,7 @@ backwardPropagation <- function(Y, model, alpha, lambda, keep_prob){
   for(i in seq(L, 1)){
     ## dZ for Output layer
     if(i == L){
-      dZ <- model$family$gradfun(Y=Y, Y_hat=model$Cache[[paste0("l", i)]]$A)
+      dZ <- model$family$gradfun(Y=Y, Y_hat=model$Cache[[paste0("l", i)]]$A, weight)
       ## dZ for hidden layers
     } else{
       if(dropout[i]){

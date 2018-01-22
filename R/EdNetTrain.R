@@ -9,9 +9,12 @@
 #'   num_epochs,
 #'   hidden_layer_dims=NULL,
 #'   hidden_layer_activations=NULL,
+#'   weight=NULL,
+#'   offset=NULL,
 #'   optimiser="GradientDescent",
 #'   keep_prob=NULL,
 #'   input_keep_prob=NULL,
+#'   tweediePower=ifelse(family=="tweedie", 1.5, NULL),
 #'   alpha=0,
 #'   lambda=0,
 #'   mini_batch_size=NULL,
@@ -19,6 +22,7 @@
 #'   beta1=ifelse(optimiser \%in\% c("Momentum", "Adam"), 0.9, NULL),
 #'   beta2=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 0.999, NULL),
 #'   epsilon=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 1E-8, NULL),
+#'   initialisation_constant=2,
 #'   print_every_n=100L,
 #'   seed=1984L,
 #'   plot=TRUE,
@@ -42,11 +46,15 @@
 #' If length is 1 the same activation function will be used for all hidden layers.
 #' Should only contain "relu" or "tanh" as these are the only supported activation functions for hidden layers.
 #' Should not be specified if starting from a checkpoint model.
+#' @param weight An optional vector of weights the same length as the number of rows of X or Y.
+#' @param offset A matrix with the same dimensions of Y to be used as an offset model. 
+#' The offset needs to be in linear space as the offset is applied before the activation function.
 #' @param optimiser Type of optimiser to use. One of "GradientDescent", "Momentum", "RMSProp", "Adam".
 #' @param keep_prob Keep probabilities for applying drop-out in hidden layers.
 #' Either a constant or a vector the same length as the \code{hidden_layer_dims} vector. If NULL no drop-out is applied.
 #' @param input_keep_prob Keep probabilities for applying drop-out in the input layer.
 #' Needs to be a single constant. If NULL no drop-out is applied.
+#' @param tweediePower Tweedie power parameter. Only applicable in Tweedie regression. Should be a number between 1 and 2.
 #' @param alpha L1 regularisation term.
 #' @param lambda L2 regularisation term.
 #' @param mini_batch_size Size of mini-batches to use. If NULL full training set is used for each iteration.
@@ -54,6 +62,8 @@
 #' @param beta1 Exponential weighting term for gradients when using Momentum or Adam optimisation.
 #' @param beta2 Exponential weighting term for square pf gradients when using RMSProp or Adam optimisation.
 #' @param epsilon Small number used for numerical stability to prevent division by zero when using RMSProp or Adam optimisation.
+#' @param initialisation_constant Weights are initialised randomly to have variance of \code{k / n} where \code{k} is the \code{initialisation_constant} and \code{n} is the dimension of the previous layer.
+#' Recommended to use the default of 2 if using relu activations and change to 1 for tanh, although it can be tuned for any specific learning task.
 #' @param print_every_n Print info to the log every n epochs. If NULL, no printing is done.
 #' @param seed Random seed to use for repeatability.
 #' @param plot Plot cost function when printing to log.
@@ -72,9 +82,12 @@ EdNetTrain <- function(X,
                        num_epochs,
                        hidden_layer_dims=NULL,
                        hidden_layer_activations=NULL,
+                       weight=NULL,
+                       offset=NULL,
                        optimiser="GradientDescent",
                        keep_prob=NULL,
                        input_keep_prob=NULL,
+                       tweediePower=NULL,
                        alpha=0,
                        lambda=0,
                        mini_batch_size=NULL,
@@ -82,6 +95,7 @@ EdNetTrain <- function(X,
                        beta1,
                        beta2,
                        epsilon,
+                       initialisation_constant=2,
                        print_every_n=100L,
                        seed=1984L,
                        plot=TRUE,
@@ -93,6 +107,8 @@ EdNetTrain <- function(X,
   ## Check X and Y are of the correct format
   if(!is.matrix(X)) stop("X must be a matrix.")
   if(!is.matrix(Y)) stop("Y must be a matrix.")
+  if(!is.numeric(X)) stop("X must be numeric")
+  if(!is.numeric(Y)) stop("Y must be numeric")
   
   ## Function takes data formatted with columns as features and rows as observations
   ## Code throughout the function uses the opposite approach
@@ -102,6 +118,20 @@ EdNetTrain <- function(X,
   ## Number of training examples
   m <- dim(X)[2]
   
+  ## weight
+  if(!is.null(weight)){
+    if(!is.numeric(weight)) stop("weight must be numeric")
+    if(length(weight) != m) stop("weight is not the correct length")
+  }
+  
+  ## offset
+  if(!is.null(offset)){
+    if(!is.matrix(offset)) stop("offset must be a matrix.")
+    offset <- t(offset)
+    if(!is.numeric(offset)) stop("offset must be numeric")
+    if(!identical(dim(Y), dim(offset))) stop("offset must have same dimensions as Y")
+  }
+  
   ## Check family of regression task is supported
   if(dim(Y)[2] != m) stop("X and Y must have the same number of columns. These should be the number of training examples.")
   if(!is.null(family)){
@@ -110,7 +140,14 @@ EdNetTrain <- function(X,
       if(!family %in% c("binary", "multiclass", "gaussian", "poisson", "gamma", "tweedie")){
         stop("Only the following are supported for family: binary, multiclass, gaussian, poisson, gamma, tweedie.")
       } else{
-        family <- outputFamily(family)
+        if(family == "tweedie"){
+          if(is.null(tweediePower)) stop("For Tweedie regression, tweediePower must be specified.")
+          if(!is.numeric(tweediePower)) stop("tweediePower must be numeric.")
+          if(length(tweediePower)!=1) stop("tweediePower must have length of 1.")
+          if(tweediePower<=1 | tweediePower>=2) stop("tweediePower must be between 1 and 2.")
+          family <- outputFamily("tweedie", power=tweediePower)
+        }
+        else family <- outputFamily(family)
       }
     } else if(is.list(family)){
       if(!all(c("family", "link.inv", "costfun", "gradfun") %in% names(family))) stop("If specifying family as a list it must be named and include the following: family, link.inv, costfun, gradfun.")
@@ -131,7 +168,6 @@ EdNetTrain <- function(X,
       stop("The family must be specified if there is no checkpoint model.")
   } else{
     family <- checkpoint@model$family
-    #tryCatch(family <- checkpoint@model$family, error=stop("Error retrieving family from checkpoint model"))
   }
 
   ## Check Y has correct dimensions
@@ -272,6 +308,11 @@ EdNetTrain <- function(X,
     }
   }
   
+  ## Check initialisation_constant
+  if(!is.numeric(initialisation_constant)) stop("initialisation_constant should be numeric")
+  if(length(initialisation_constant) != 1) stop("initialisation_constant should be length 1.")
+  if(initialisation_constant <= 0) stop("initialisation_constant is negative or zero.")
+
   ## Check other parameters
   if(!is.null(print_every_n)){
     if(!is.numeric(print_every_n)) stop("print_every_n should be numeric")
@@ -313,7 +354,7 @@ EdNetTrain <- function(X,
   ## Initialise all model parameters
   if(is.null(checkpoint)){
     model <- vector(mode="list")
-    model$Params <- initialiseParams(layer_dims, activations, seed)
+    model$Params <- initialiseParams(layer_dims, activations, seed, initialisation_constant)
     if(optimiser %in% c("Momentum", "Adam")) model$v <- initialise_v(model$Params)
     if(optimiser %in% c("RMSProp", "Adam")) model$s <- initialise_s(model$Params)
     model$family <- family
@@ -332,6 +373,14 @@ EdNetTrain <- function(X,
     Y_dev <- Y[, dev_set, drop=FALSE]
     X <- X[, -dev_set, drop=FALSE]
     Y <- Y[, -dev_set, drop=FALSE]
+    if(!is.null(weight)){
+      weight_dev <- weight[dev_set]
+      weight <- weight[-dev_set]
+    } else weight_dev <- NULL
+    if(!is.null(offset)){
+      offset_dev <- offset[, dev_set, drop=FALSE]
+      offset <- offset[, -dev_set, drop=FALSE]
+    } else offset_dev <- NULL
     m <- m-length(dev_set)
   }
   
@@ -339,18 +388,11 @@ EdNetTrain <- function(X,
   set.seed(seed)
   
   ## Split into mini-batches
-  mini_batches <- lapply(seq(0, ceiling(m / mini_batch_size)-1), function(i){
-    permutate <- sample(seq(1, m))
-    X <- X[, permutate, drop=FALSE]
-    Y <- Y[, permutate, drop=FALSE]
-    return(list(X=X[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE],
-                Y=Y[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE]))
-  })
+  mini_batches <- generateMiniBatches(X, Y, m, mini_batch_size, weight, offset)
   
   num_batches <- length(mini_batches)
 
   ## Initialise t and Costs
-  t <- 0
   if(!is.null(dev_set)){
     Costs <- data.frame(trainCost=numeric(), 
                         devLoss=numeric())
@@ -359,14 +401,14 @@ EdNetTrain <- function(X,
   }
   
   ## First run of forward prop
-  model$Cache <- forwardPropagation(mini_batches[[t%%num_batches + 1]][["X"]], model$Params, input_keep_prob, keep_prob)
+  model$Cache <- forwardPropagation(mini_batches[[1]][["X"]], model$Params, input_keep_prob, keep_prob, mini_batches[[1]][["offset"]])
   
   ## Compute cost
-  J <- computeCost(model, mini_batches[[t%%num_batches + 1]][["Y"]], alpha, lambda)
+  J <- computeCost(model, mini_batches[[1]][["Y"]], alpha, lambda, mini_batches[[1]][["weight"]])
   if(!is.null(dev_set)){
     dev_model <- model
-    dev_model$Cache <- forwardPropagation(X_dev, dev_model$Params, 1, rep(1, L))
-    dev_loss <- computeCost(dev_model, Y_dev, 0, 0)
+    dev_model$Cache <- forwardPropagation(X_dev, dev_model$Params, 1, rep(1, L), offset_dev)
+    dev_loss <- computeCost(dev_model, Y_dev, 0, 0, weight_dev)
     Costs <- rbind(Costs, data.frame(trainCost=J, devLoss=dev_loss))
   } else{
     Costs <- rbind(Costs, data.frame(trainCost=J))
@@ -382,24 +424,25 @@ EdNetTrain <- function(X,
   ## Loop through epochs
   for(e in seq(1, num_epochs)){
     ## For each epoch loop through each mini-batch
-    for(t in seq(t+1, t+num_batches)){
+    for(t in seq(1, num_batches)){
       
       ## Compute Gradients with backprop
-      model$Grads <- backwardPropagation(mini_batches[[(t-1)%%num_batches + 1]][["Y"]], model, alpha, lambda, keep_prob)
+      model$Grads <- backwardPropagation(mini_batches[[(t-1)%%num_batches + 1]][["Y"]], model, alpha, lambda, keep_prob, mini_batches[[(t-1)%%num_batches + 1]][["weight"]])
+      if(any(sapply(model$Grads, function(layer) any(sapply(layer, function(grad) any(is.nan(grad))))))) stop(paste0("Division by zero detected after in epoch ", e, " iteration ", t, "."))
       
       ## Update model parameters
       model <- updateParameters(model, learning_rate, optimiser, t, beta1, beta2, epsilon)
       
       ## Run forward prop
-      model$Cache <- forwardPropagation(mini_batches[[t%%num_batches + 1]][["X"]], model$Params, input_keep_prob, keep_prob)
+      model$Cache <- forwardPropagation(mini_batches[[t%%num_batches + 1]][["X"]], model$Params, input_keep_prob, keep_prob, mini_batches[[t%%num_batches + 1]][["offset"]])
     }
     
     ## Compute cost
-    J <- computeCost(model, mini_batches[[t%%num_batches + 1]][["Y"]], alpha, lambda)
+    J <- computeCost(model, mini_batches[[t%%num_batches + 1]][["Y"]], alpha, lambda, mini_batches[[t%%num_batches + 1]][["weight"]])
     if(!is.null(dev_set)){
       dev_model <- model
-      dev_model$Cache <- forwardPropagation(X_dev, dev_model$Params, 1, rep(1, L))
-      dev_loss <- computeCost(dev_model, Y_dev, 0, 0)
+      dev_model$Cache <- forwardPropagation(X_dev, dev_model$Params, 1, rep(1, L), offset_dev)
+      dev_loss <- computeCost(dev_model, Y_dev, 0, 0, weight_dev)
       Costs <- rbind(Costs, data.frame(trainCost=J, devLoss=dev_loss))
     } else{
       Costs <- rbind(Costs, data.frame(trainCost=J))
@@ -430,13 +473,7 @@ EdNetTrain <- function(X,
     }
     
     ## redfine mini-batches for next epoch
-    mini_batches <- lapply(seq(0, ceiling(m / mini_batch_size)-1), function(i){
-      permutate <- sample(seq(1, m))
-      X <- X[, permutate, drop=FALSE]
-      Y <- Y[, permutate, drop=FALSE]
-      return(list(X=X[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE],
-                  Y=Y[, seq(mini_batch_size*i+1, min(mini_batch_size*(i+1), m)), drop=FALSE]))
-    })
+    mini_batches <- generateMiniBatches(X, Y, m, mini_batch_size, weight, offset)
   }
   
   # Drop Cache

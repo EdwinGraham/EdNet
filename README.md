@@ -17,6 +17,8 @@ devtools::install_github("EdwinGraham/EdNet")
   * Poisson
   * Gamma
   * Tweedie
+* Supports weighted regression
+* Supports training with an offset model
 * L1 and L2 regularisation
 * Drop-out
 * Mini-batch learning

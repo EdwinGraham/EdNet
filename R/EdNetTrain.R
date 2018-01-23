@@ -190,7 +190,10 @@ EdNetTrain <- function(X,
   }
   
   ## Number of non-input layers
-  L <- length(hidden_layer_dims)+1
+  if(!is.null(checkpoint)){
+    if(! "EdNetModel" %in% class(checkpoint)) stop("checkpoint must have class EdNetModel")
+    L <- length(checkpoint@model$Params)
+  } else L <- length(hidden_layer_dims)+1
   
   ## Check hidden_layer_activations
   if(!is.null(hidden_layer_activations)){

@@ -26,7 +26,7 @@ EdNetTrain(
   beta2=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 0.999, NULL),
   epsilon=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 1E-8, NULL),
   initialisation_constant=2,
-  print_every_n=100L,
+  print_every_n=NULL,
   seed=1984L,
   plot=TRUE,
   checkpoint=NULL,

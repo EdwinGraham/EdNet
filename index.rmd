@@ -63,7 +63,7 @@ devSetAccuracy <- mean((dfBinary$prediction[1:200]>.5)==dfBinary$target[1:200])
 devSetAccuracy
 ```
 
-The model we've built acheives a 87% accuracy on the hold-out data, so we are doing a lot better than random.
+The model we've built acheives a 85% accuracy on the hold-out data, so we are doing a lot better than random.
 
 ## Multiclass classification with Iris data
 
@@ -203,14 +203,14 @@ abline(c(0, 0), 1)
 
 ## Gamma distribution example and use of checkpoint model
 
-Bring in some Gamma-distributed dummy data.
+This example uses dummy Gamma distributed data and makes use of the checkpoint feature to continue learning from an existing model. First we bring in the data.
 
 ```{r}
 data("dfGamma")
 head(dfGamma)
 ```
 
-Train a model using gradient descent for 15 epochs without using mini-batches.
+Now we train a model using gradient descent for 15 epochs without using mini-batches.
 
 ```{r, fig.width = 9.5}
 modelFit <- EdNetTrain(X=as.matrix(dfGamma[, 1:3]),

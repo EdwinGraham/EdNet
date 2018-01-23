@@ -213,8 +213,8 @@ head(dfGamma)
 Train a model for only 1 epoch.
 
 ```{r}
-modelFit <- EdNetTrain(X=as.matrix(dfPoisson[, 1:3]),
-                       Y=as.matrix(dfPoisson[, 4]),
+modelFit <- EdNetTrain(X=as.matrix(dfGamma[, 1:3]),
+                       Y=as.matrix(dfGamma[, 4]),
                        family="gamma",
                        learning_rate=0.005,
                        num_epochs=1,
@@ -231,8 +231,8 @@ modelFit <- EdNetTrain(X=as.matrix(dfPoisson[, 1:3]),
 Use first model as a checkpoint and continue training for another 39 epochs.
 
 ```{r}
-modelFit <- EdNetTrain(X=as.matrix(dfPoisson[, 1:3]),
-                       Y=as.matrix(dfPoisson[, 4]),
+modelFit <- EdNetTrain(X=as.matrix(dfGamma[, 1:3]),
+                       Y=as.matrix(dfGamma[, 4]),
                        family="gamma",
                        learning_rate=0.005,
                        num_epochs=39,
@@ -243,41 +243,71 @@ modelFit <- EdNetTrain(X=as.matrix(dfPoisson[, 1:3]),
                        print_every_n=39,
                        dev_set=1:200,
                        checkpoint=modelFit)
+```
+```{r}
+dfGamma$predictions <- predict(modelFit, as.matrix(dfPoisson[, 1:3]))
+head(dfGamma)
+```
 
-
-for(f in list.files("./R", full.names=TRUE)) source(f); rm(f)
-
-X=as.matrix(dfPoisson[, 1:3])
-Y=as.matrix(dfPoisson[, 4])
-family="gamma"
-learning_rate=0.005
-num_epochs=39
-optimiser="Adam"
-lambda=0.004
-keep_prob=0.8
-mini_batch_size=8
-print_every_n=39
-dev_set=1:200
-checkpoint=modelFit
-hidden_layer_dims=NULL
-hidden_layer_activations=NULL
-weight=NULL
-offset=NULL
-input_keep_prob=NULL
-tweediePower=NULL
-alpha=0
-beta1=0.9
-beta2=0.999
-epsilon=1E-8
-initialisation_constant=2
-seed=1984L
-plot=TRUE
-keep=FALSE
-
-
+```{r}
+plot(dfGamma$predictions[1:200], dfGamma$target[1:200])
+abline(c(0, 0), 1)
 ```
 
 
 ## Tweedie distribution example with weights
 
-Example under construction
+```{r}
+data("dfTweedie")
+head(dfTweedie)
+```
+
+```{r}
+mean(dfTweedie$target==0)
+```
+
+
+sdfgsdfg
+
+```{r}
+plot(dfTweedie$exposure, dfTweedie$target)
+```
+
+The target variable should depend linearly on exposure as well as on the other variables in some way. We can use an offset to take this into account.
+
+```{r}
+X <- as.matrix(dfTweedie[, 1:3])
+Y <- as.matrix(dfTweedie$target/dfTweedie$exposure)
+
+modelFit <- EdNetTrain(X=X,
+                       Y=Y,
+                       weight=dfTweedie$exposure,
+                       family="tweedie",
+                       tweediePower=1.1,
+                       learning_rate=0.01,
+                       num_epochs=40,
+                       hidden_layer_dims=c(128, 64, 32, 8),
+                       hidden_layer_activations="relu",
+                       optimiser="Adam",
+                       lambda = 0.004,
+                       keep_prob=0.8,
+                       mini_batch_size=8,
+                       print_every_n=40L,
+                       dev_set=1:200)
+```
+
+sdfsdf
+
+
+```{r}
+dfTweedie$predictedRate <- predict(modelFit, X)
+dfTweedie$actualRate <- dfTweedie$target/dfTweedie$exposure
+head(dfTweedie)
+```
+
+Plotting the actual v predicted rate on the hold-out data.
+
+```{r}
+plot(dfTweedie$predictedRate[1:200], dfTweedie$actualRate[1:200])
+abline(c(0, 0), 1)
+```

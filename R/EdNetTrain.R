@@ -438,15 +438,16 @@ EdNetTrain <- function(X,
   
   ## Loop through epochs
   for(e in seq(1, num_epochs)){
+    print(1)
     ## For each epoch loop through each mini-batch
     for(t in seq(1, num_batches)){
-      
+      print(2)
       ## Compute Gradients with backprop
       model$Grads <- backwardPropagation(mini_batches[[(t-1)%%num_batches + 1]][["Y"]], model, alpha, lambda, keep_prob, mini_batches[[(t-1)%%num_batches + 1]][["weight"]])
       if(any(sapply(model$Grads, function(layer) any(sapply(layer, function(grad) any(is.nan(grad))))))) stop(paste0("Division by zero detected after in epoch ", e, " iteration ", t, "."))
-      
+      print(3)
       ## Update model parameters
-      model <- updateParameters(model, learning_rate, optimiser, t, beta1, beta2, epsilon)
+      model <- updateParameters(model, learning_rate, optimiser, (e-1)*num_batches+t, beta1, beta2, epsilon)
       
       ## Run forward prop
       model$Cache <- forwardPropagation(mini_batches[[t%%num_batches + 1]][["X"]], model$Params, input_keep_prob, keep_prob, mini_batches[[t%%num_batches + 1]][["offset"]])

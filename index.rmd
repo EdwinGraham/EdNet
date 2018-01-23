@@ -210,36 +210,34 @@ data("dfGamma")
 head(dfGamma)
 ```
 
-Train a model for only 1 epoch.
+Train a model using gradient descent for 10 epochs.
 
 ```{r}
 modelFit <- EdNetTrain(X=as.matrix(dfGamma[, 1:3]),
                        Y=as.matrix(dfGamma[, 4]),
                        family="gamma",
                        learning_rate=0.002,
-                       num_epochs=10,
+                       num_epochs=15,
                        hidden_layer_dims=c(128, 32, 8),
                        hidden_layer_activations="relu",
                        optimiser="GradientDescent",
-                       lambda=0.01,
-                       keep_prob=0.8,
-                       print_every_n=10,
+                       print_every_n=15,
                        dev_set=1:200)
 ```
 
-Use first model as a checkpoint and continue training for another 30 epochs.
+Use first model as a checkpoint and continue training for another 30 epochs wi.
 
 ```{r}
 modelFit <- EdNetTrain(X=as.matrix(dfGamma[, 1:3]),
                        Y=as.matrix(dfGamma[, 4]),
                        family="gamma",
                        learning_rate=0.005,
-                       num_epochs=30,
+                       num_epochs=25,
                        optimiser="Adam",
                        lambda=0.004,
                        keep_prob=0.8,
                        mini_batch_size=8,
-                       print_every_n=30,
+                       print_every_n=25,
                        dev_set=1:200,
                        checkpoint=modelFit)
 

@@ -417,9 +417,9 @@ EdNetTrain <- function(X,
   ## Print initial costs
   if(!is.null(print_every_n)){
     if(!is.null(dev_set)){
-      cat(paste0("Cost after 0 epochs: train-", prettyNum(J), ", dev-", prettyNum(dev_loss)))
+      cat(paste0("Cost after 0 epochs: train-", prettyNum(J), ", dev-", prettyNum(dev_loss), "\n"))
     } else{
-      cat(paste0("Cost after 0 epochs: ", prettyNum(J)))
+      cat(paste0("Cost after 0 epochs: ", prettyNum(J), "\n"))
     }
   }
   
@@ -455,12 +455,12 @@ EdNetTrain <- function(X,
       if(!e%%print_every_n | e==num_epochs){
         
         if(!is.null(dev_set)){
-          cat(paste0("Cost after ", prettyNum(e, big.mark=","), " epochs: train-", prettyNum(J), ", dev-", prettyNum(dev_loss)))
+          cat(paste0("Cost after ", prettyNum(e, big.mark=","), " epochs: train-", prettyNum(J), ", dev-", prettyNum(dev_loss), "\n"))
           if(e==num_epochs){
-            cat(paste0("Best dev score achieved was ", prettyNum(min(Costs$devLoss)), " after ", which.min(Costs$devLoss)-1, " epochs."))
+            cat(paste0("Best dev score achieved was ", prettyNum(min(Costs$devLoss)), " after ", which.min(Costs$devLoss)-1, " epochs.\n"))
           }
         } else{
-          cat(paste0("Cost after ", prettyNum(e, big.mark=","), " epochs: ", prettyNum(J)))
+          cat(paste0("Cost after ", prettyNum(e, big.mark=","), " epochs: ", prettyNum(J), "\n"))
         }
         if(plot){
           if(!is.null(dev_set)){

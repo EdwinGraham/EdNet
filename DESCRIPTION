@@ -1,6 +1,6 @@
 Package: EdNet
 Title: Train deep neural networks for classification and regression
-Version: 1.0.20180123
+Version: 1.0.1801
 Authors@R: person("Edwin", "Graham", email = "edwingraham1984@gmail.com", role = c("aut", "cre"))
 Description: Train deep neural networks for classification and regression, supporting binary and multi-class classification with softmax unit and Normal, Poisson, Gamma and Tweedie regression.
 Depends: R (>= 3.3.2)

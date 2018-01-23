@@ -372,6 +372,12 @@ EdNetTrain <- function(X,
     if(!is.null(family)) {
       if(!identical(family$family, model$family$family)) stop("Mis-match between family specified and family from checkpoint model.")
     }
+    if(optimiser %in% c("Momentum", "Adam")){
+      if(is.null(checkpoint@model$v)) model$v <- initialise_v(model$Params)
+    }
+    if(optimiser %in% c("RMSProp", "Adam")){
+      if(is.null(checkpoint@model$s)) model$s <- initialise_s(model$Params)
+    }
   }
   
   ## Extract development set

@@ -4,7 +4,7 @@
 \name{dfPoisson}
 \alias{dfPoisson}
 \title{Random data for Poisson process regression example.}
-\format{A data.frame with 1,000 rows and 4 variables:
+\format{A data.frame with 1,000 rows and 5 variables:
 \itemize{
   \item x1: feature 1
   \item x2: feature 2

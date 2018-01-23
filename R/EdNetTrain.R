@@ -23,7 +23,7 @@
 #'   beta2=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 0.999, NULL),
 #'   epsilon=ifelse(optimiser \%in\% c("RMSProp", "Adam"), 1E-8, NULL),
 #'   initialisation_constant=2,
-#'   print_every_n=100L,
+#'   print_every_n=NULL,
 #'   seed=1984L,
 #'   plot=TRUE,
 #'   checkpoint=NULL,
@@ -96,7 +96,7 @@ EdNetTrain <- function(X,
                        beta2,
                        epsilon,
                        initialisation_constant=2,
-                       print_every_n=100L,
+                       print_every_n=NULL,
                        seed=1984L,
                        plot=TRUE,
                        checkpoint=NULL,
@@ -214,7 +214,7 @@ EdNetTrain <- function(X,
       keep_prob <- pmin(keep_prob, 1)
     }
     if(all(keep_prob==1)){
-      print("keep_prob contains only 1s so no drop-out will be performed on hidden layers.")
+      warning("keep_prob contains only 1s so no drop-out will be performed on hidden layers.")
       keep_prob <- NULL
     }
   }
@@ -227,7 +227,7 @@ EdNetTrain <- function(X,
     if(input_keep_prob >= 1){
       if(input_keep_prob > 1){
         warning("input_keep_prob is greater than 1 and will be ignored")
-      }else print("input_keep_prob is 1 so no drop-out will be performed on the input layer.")
+      }else warning("input_keep_prob is 1 so no drop-out will be performed on the input layer.")
       input_keep_prob <- NULL
     }
   }
@@ -415,10 +415,12 @@ EdNetTrain <- function(X,
   }
   
   ## Print initial costs
-  if(!is.null(dev_set)){
-    print(paste0("Cost after 0 epochs: train-", prettyNum(J), ", dev-", prettyNum(dev_loss)))
-  } else{
-    print(paste0("Cost after 0 epochs: ", prettyNum(J)))
+  if(!is.null(print_every_n)){
+    if(!is.null(dev_set)){
+      cat(paste0("Cost after 0 epochs: train-", prettyNum(J), ", dev-", prettyNum(dev_loss)))
+    } else{
+      cat(paste0("Cost after 0 epochs: ", prettyNum(J)))
+    }
   }
   
   ## Loop through epochs
@@ -453,12 +455,12 @@ EdNetTrain <- function(X,
       if(!e%%print_every_n | e==num_epochs){
         
         if(!is.null(dev_set)){
-          print(paste0("Cost after ", prettyNum(e, big.mark=","), " epochs: train-", prettyNum(J), ", dev-", prettyNum(dev_loss)))
+          cat(paste0("Cost after ", prettyNum(e, big.mark=","), " epochs: train-", prettyNum(J), ", dev-", prettyNum(dev_loss)))
           if(e==num_epochs){
-            print(paste0("Best dev score achieved was ", prettyNum(min(Costs$devLoss)), " after ", which.min(Costs$devLoss)-1, " epochs."))
+            cat(paste0("Best dev score achieved was ", prettyNum(min(Costs$devLoss)), " after ", which.min(Costs$devLoss)-1, " epochs."))
           }
         } else{
-          print(paste0("Cost after ", prettyNum(e, big.mark=","), " epochs: ", prettyNum(J)))
+          cat(paste0("Cost after ", prettyNum(e, big.mark=","), " epochs: ", prettyNum(J)))
         }
         if(plot){
           if(!is.null(dev_set)){

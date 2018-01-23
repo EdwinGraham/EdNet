@@ -160,7 +160,7 @@ EdNetTrain <- function(X,
       if(!is.function(family$costfun)) stop("The costfun element in 'family' should be a function.")
       if(!is.function(family$gradfun)) stop("The gradfun element in 'family' should be a function.")
       if(length(family) > 4){
-        warning("family contains elements that are being ignored.")
+        warning("family contains elements that are being ignored./n")
         family <- family[c("family", "link.inv", "costfun", "gradfun")]
       }
     }
@@ -176,7 +176,7 @@ EdNetTrain <- function(X,
   } else{
     if(dim(Y)[1] == 1){
       stop("Y should be a mutli-row matrix for this type of regression")
-    } else if(dim(Y)[1] == 2) warning("Softmax regression with only two classes. Suggest running a binary regression instead.")
+    } else if(dim(Y)[1] == 2) warning("Softmax regression with only two classes. Suggest running a binary regression instead./n")
   }
   
   ## Check learning_rate and hidden_layer_dims inputs
@@ -210,11 +210,11 @@ EdNetTrain <- function(X,
     if(!length(keep_prob) %in% c(1, L-1)) stop("keep_prob should be length 1 or the same length as hidden_layer_dims.")
     if(!all(keep_prob>0)) stop("keep_prob contains zero or negative numbers.")
     if(!all(keep_prob<=1)){
-      warning("keep_prob contains numbers greater than 1. These will be treated as 1.")
+      warning("keep_prob contains numbers greater than 1. These will be treated as 1./n")
       keep_prob <- pmin(keep_prob, 1)
     }
     if(all(keep_prob==1)){
-      warning("keep_prob contains only 1s so no drop-out will be performed on hidden layers.")
+      warning("keep_prob contains only 1s so no drop-out will be performed on hidden layers./n")
       keep_prob <- NULL
     }
   }
@@ -226,8 +226,8 @@ EdNetTrain <- function(X,
     if(input_keep_prob <= 0) stop("input_keep_prob is zero or negative.")
     if(input_keep_prob >= 1){
       if(input_keep_prob > 1){
-        warning("input_keep_prob is greater than 1 and will be ignored")
-      }else warning("input_keep_prob is 1 so no drop-out will be performed on the input layer.")
+        warning("input_keep_prob is greater than 1 and will be ignored./n")
+      }else warning("input_keep_prob is 1 so no drop-out will be performed on the input layer./n")
       input_keep_prob <- NULL
     }
   }
@@ -247,7 +247,7 @@ EdNetTrain <- function(X,
     if(mini_batch_size != as.integer(mini_batch_size)) stop("mini_batch_size should be an integer.")
     if(mini_batch_size <= 0) stop("mini_batch_size should be an postive.")
     if(!mini_batch_size < m){
-      warning("mini_batch_size is greater than or equal to the number of training examples and will be ignored.")
+      warning("mini_batch_size is greater than or equal to the number of training examples and will be ignored./n")
       mini_batch_size <- NULL
     }
   }
@@ -259,7 +259,7 @@ EdNetTrain <- function(X,
     if(min(dev_set)<1) stop("Zero or negative numbers detected in dev_set.")
     if(max(dev_set)>m) stop("dev_set contains numbers greater than the number of training examples.")
     if(length(unique(dev_set)) != length(dev_set)){
-      warning("dev_set contains repeated column numbers which will be ignored.")
+      warning("dev_set contains repeated column numbers which will be ignored./n")
       dev_set <- unique(dev_set)
     }
   }
@@ -272,7 +272,7 @@ EdNetTrain <- function(X,
   ## Check beta1
   if(!is.null(beta1)){
     if(!optimiser %in% c("Momentum", "Adam")){
-      warning("beta1 is only used when optimiser is Momentum or Adam and will be ignored")
+      warning("beta1 is only used when optimiser is Momentum or Adam and will be ignored./n")
       beta1 <- NULL
     } else{
       if(!is.numeric(beta1)) stop("beta1 should be numeric")
@@ -285,7 +285,7 @@ EdNetTrain <- function(X,
   ## Check beta2
   if(!is.null(beta2)){
     if(!optimiser %in% c("RMSProp", "Adam")){
-      warning("beta2 is only used when optimiser is RMSProp or Adam and will be ignored")
+      warning("beta2 is only used when optimiser is RMSProp or Adam and will be ignored./n")
       beta2 <- NULL
     } else{
       if(!is.numeric(beta2)) stop("beta2 should be numeric")
@@ -298,13 +298,13 @@ EdNetTrain <- function(X,
   ## Check epsilon
   if(!is.null(epsilon)){
     if(!optimiser %in% c("RMSProp", "Adam")){
-      warning("epsilon is only used when optimiser is RMSProp or Adam and will be ignored")
+      warning("epsilon is only used when optimiser is RMSProp or Adam and will be ignored./n")
       epsilon <- NULL
     } else{
       if(!is.numeric(epsilon)) stop("epsilon should be numeric")
       if(length(epsilon) != 1) stop("epsilon should be length 1.")
       if(epsilon <= 0) stop("epsilon is negative or zero.")
-      if(epsilon >= 1E-5) warning("epsilon may be too large.")
+      if(epsilon >= 1E-5) warning("epsilon may be too large./n")
     }
   }
   
@@ -360,8 +360,12 @@ EdNetTrain <- function(X,
     model$family <- family
   } else{
     model <- checkpoint@model
-    if(!is.null(hidden_layer_dims)) warning("hidden_layer_dims is specified but will be ignored since starting learning from checkpoint model")
-    if(!is.null(hidden_layer_activations)) warning("hidden_layer_activations is specified but will be ignored since starting learning from checkpoint model")
+    if(!is.null(hidden_layer_dims)){
+      warning("hidden_layer_dims is specified but will be ignored since starting learning from checkpoint model./n")
+    } else hidden_layer_dims <- sapply(checkpoint@model$Params, function(x) dim(x$W))[2, ]
+    if(!is.null(hidden_layer_activations)){
+      warning("hidden_layer_activations is specified but will be ignored since starting learning from checkpoint model./n")
+    } else hidden_layer_activations <- unlist(sapply(checkpoint@model$Params, function(x) x$activation)[-length(checkpoint@model$Params)])
     if(!is.null(family)) {
       if(!identical(family$family, model$family$family)) stop("Mis-match between family specified and family from checkpoint model.")
     }
